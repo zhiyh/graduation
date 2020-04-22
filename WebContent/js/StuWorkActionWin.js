@@ -1,0 +1,99 @@
+Ext.ns("homework","homeworks.js");
+Ext.define("homework.js.StuWorkActionWin",{
+	extend:'Ext.Window',
+	title:null,
+	id:'stuworkAction',
+	actionText:null,
+	initComponent:function(){
+		Ext.apply(this,{
+			title:this.title,
+			id:'stuworkAction',
+			width:650,
+			height:600,
+			plain:true,
+			modal:true,
+			border:false,
+			constrain:true,
+			layout:'form',
+			x:400,  
+		    y:1,  
+			frame:true,
+			items:[new Ext.form.FormPanel({
+				layout:'column',
+				id:'workActionForm',
+				frame:true,
+				items:[{
+					xtype:'fieldset',
+					title:'回答作业',
+					collapsible:true,
+					autoHeight:true,
+					columnWidth:0.95,
+					autoScroll:false,
+					items:[{
+						xtype:'panel',
+						frame:true,
+						height:50,
+						html:null,
+						id:'workTitle',
+						name:'workTitle'
+					},{
+						xtype:'textfield',
+						id:'teaId',
+						name:'teaId',
+						hidden:true,
+						hideLabel:true
+					},{
+						xtype:'htmleditor',
+						height:430,
+						width:600,
+						fieldLabel:'回答',
+						id:'stuAnswer',
+						autoScroll : true,
+						name:'stuAnswer'
+					},{
+						xtype:'textfield',
+						id:'workId',
+						border:false,
+						name:'workId',
+						hidden:true,
+						hideLabel:true
+					}]
+				}]
+			})],
+			buttons:[{
+				text:this.actionText,
+				handler:function(){
+					if(Ext.getCmp("stuAnswer").getValue()==""){
+						Ext.Msg.alert("操作失败","答案不能为空！！！");
+					}else{
+						var stuAnswer=Ext.getCmp("stuAnswer").getValue();
+						var teaId=Ext.getCmp("teaId").getValue();
+						var workId=Ext.getCmp("workId").getValue();
+						Ext.Ajax.request({
+							url:path+'/workController/stuAddWork.do',
+							method:'post',
+							success:function(res){
+								Ext.Msg.alert("操作结果","用户操作成功");
+								Ext.getCmp("stuworkAction").close();	
+							},
+							params:{
+								loginUserId:loginUserId,
+								classId:classId,
+								stuAnswer:stuAnswer,
+								workId:workId,
+								teaId:teaId
+							}
+						})
+					}
+					
+				}
+			},{
+				text:'关闭',
+                handler:function(){
+                	Ext.getCmp("stuworkAction").close();
+                }
+			}]
+		});
+		this.callParent(arguments);
+	}
+});

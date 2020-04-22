@@ -1,0 +1,393 @@
+type=0;
+Ext.ns("homework","homeworks.js");
+Ext.define("homework.js.UsersActionWin",{
+	extend:'Ext.Window',
+	title:null,
+	actionUrl:null,
+	id:'usersAction',
+	edtionUserName:null,
+	actionText:null,
+	initComponent:function(){
+		Ext.apply(this,{
+			title:this.title,
+			id:'usersAction',
+			width:800,
+			height:350,
+			plain:true,
+			modal:true,
+			border:false,
+			constrain:true,
+			layout:'form',
+			x:300,  
+		    y:100,  
+			frame:true,
+			items:[new Ext.form.FormPanel({
+				layout:'column',
+				id:'userActionForm',
+				frame:true,
+				items:[{
+					columnWidth:.33,
+					layout:'form',
+					plain:true,
+					border:false,
+					frame:true,
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'用户名',
+						readOnly:this.edtionUserName,
+						id:'userName',
+						name:'userName',
+						allowBlank:false,//不允许为空  
+		                blankText:"用户名不能为空",
+		                listeners:{
+		                	blur:function(){
+		                		var userName=Ext.getCmp("userName").getValue();
+		                		Ext.Ajax.request({
+									url:path+'/userController/selectUserName.do',
+									method:'post',
+									success:function(res){
+										var result=Ext.JSON.decode(res.responseText);
+										if(result.reason != 0){
+											type=1;
+											Ext.Msg.alert("警告","用户名已存在");
+										}else{
+											type=0;
+										}
+									},
+									params:{
+										userName:userName
+									}
+								})
+		                	}
+		                }
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'密码',
+						id:'passWord',
+						name:'passWord',
+						inputType: 'password',
+						allowBlank:false,//不允许为空  
+		                blankText:"密码不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'真实姓名',
+						id:'realName',
+						name:'realName',
+						maxLength: 10,
+					    minLength: 1,
+						regex : /[\u4e00-\u9fa5]/, //正则表达式在/...../之间. [\u4e00-\u9fa5] : 只能输入中文.   
+						regexText:"只能输入中文!", //正则表达式错误提示  
+						allowBlank:false,//不允许为空  
+		                blankText:"真实姓名不能为空"
+		              /*regex:/[/u4e00-/u9fa5]/,      
+		                regexText:"只能输入中文!"*/
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'combo',
+						store:homework.js.sex,
+						displayField:'display',
+						valueField:'value',
+						triggerAction:'all',
+						typeHead:true,
+						editable:false,
+						mode:'local',
+						fieldLabel:'性别',
+						id:'sex',
+						name:'sex',
+						allowBlank:false,//不允许为空  
+		                blankText:"性别不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'datefield',
+						format:'Y-m-d',
+						editable:false,
+						fieldLabel:'出生日期',
+						id:'birth',
+						name:'birth',
+						allowBlank:false,//不允许为空  
+		                blankText:"日期不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'combo',
+						store:homework.js.education,
+						displayField:'display',
+						valueField:'value',
+						triggerAction:'all',
+						typeHead:true,
+						mode:'local',
+						editable:false,
+						fieldLabel:'学历',
+						id:'education',
+						name:'education',
+						allowBlank:false,//不允许为空  
+		                blankText:"学历不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'邮箱',
+						id:'email',
+						vtype:"email",//email格式验证  
+					    vtypeText:"不是有效的邮箱地址",
+						name:'email',
+						allowBlank:false,//不允许为空  
+		                blankText:"不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'身份证号',
+						id:'card',
+						name:'card',
+						regex: /(^\d{15}$)|(^\d{17}([0-9]|X)$)/,
+						regexText : "输入的身份证号码不符合规定！\n15位号码应全为数字，18位号码末位可以为数字或X",
+						allowBlank:false,//不允许为空  
+		                blankText:"身份证号不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'combo',
+						store:homework.js.hometown,
+						displayField:'display',
+						valueField:'value',
+						triggerAction:'all',
+						typeHead:true,
+						mode:'local',
+						editable:false,
+						fieldLabel:'籍贯',
+						id:'hometown',
+						name:'hometown',
+						allowBlank:false,//不允许为空  
+		                blankText:"籍贯不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'家庭地址',
+						id:'address',
+						name:'address',
+						allowBlank:false,//不允许为空  
+		                blankText:"地址不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'combo',
+						store:homework.js.className,
+						displayField:'className',
+						valueField:'classId',
+						triggerAction:'all',
+						typeHead:true,
+						mode:'remote',
+						fieldLabel:'班级',
+						editable:false,
+						id:'className',
+						name:'className',
+						allowBlank:false,//不允许为空  
+		                blankText:"班级不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'combo',
+						store:role,
+						displayField:'display',
+						valueField:'value',
+						triggerAction:'all',
+						typeHead:true,
+						mode:'local',
+						editable:false,
+						fieldLabel:'角色',
+						id:'authority',
+						name:'authority',
+						allowBlank:false,//不允许为空  
+		                blankText:"角色为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						fieldLabel:'电话',
+						id:'telephone',
+						name:'telephone',
+						regex:/^1[34578]\d{9}$/,
+						regexText:'请输入正确的手机号码',
+						allowBlank:false,//不允许为空  
+		                blankText:"电话不能为空"
+					}]
+				},{
+					columnWidth:.33,
+					plain:true,
+					border:false,
+					frame:true,
+					hidden:true,
+					hideLabel:true,
+					layout:'form',
+					items:[{
+						xtype:'textfield',
+						id:'ido',
+						name:'ido',
+						hidden:true,
+						hideLabel:true
+					}]
+				},{
+					columnWidth:1,
+					plain:true,
+					border:false,
+					frame:true,
+					layout:'form',
+					items:[{
+						xtype:'textarea',
+						height:70,
+						fieldLabel:'个人简介',
+						id:'introduction',
+						name:'introduction'
+					}]
+				}]
+			})],
+			buttons:[{//
+				text:this.actionText,
+				handler:function(){
+					if(type==1){
+						Ext.Msg.alert("操作失败","用户名已存在！！！");
+					}else if(Ext.getCmp("userName").getValue()==""){
+						Ext.Msg.alert("操作失败","用户名不能为空！！！");
+					}else if(Ext.getCmp("passWord").getValue()==""){
+						Ext.Msg.alert("操作失败","密码不能为空！！！");
+					}else if(Ext.getCmp("authority").getValue()==""){
+						Ext.Msg.alert("操作失败","角色不能为空！！！");
+					}else if(Ext.getCmp("realName").getValue()==""){
+						Ext.Msg.alert("操作失败","真实姓名不能为空！！！");
+					}else if(Ext.getCmp("className").getValue()==""||Ext.getCmp("className").getValue()==null){
+						Ext.Msg.alert("操作失败","班级不能为空！！！");
+					}else{
+						var result=Ext.getCmp("userActionForm").getForm().isValid();
+						if(result){
+							var userName=Ext.getCmp("userName").getValue();
+							var passWord=Ext.getCmp("passWord").getValue();
+							var realName=Ext.getCmp("realName").getValue();
+							var sex=Ext.getCmp("sex").getValue();
+							var ido=Ext.getCmp("ido").getValue();
+							var className=Ext.getCmp("className").getValue();
+							var authority=Ext.getCmp("authority").getValue();
+							var introduction=Ext.getCmp("introduction").getValue();
+							var birth=Ext.getCmp("birth").getValue();
+							var address=Ext.getCmp("address").getValue();
+							var telephone=Ext.getCmp("telephone").getValue();
+							var hometown=Ext.getCmp("hometown").getValue();
+							var card=Ext.getCmp("card").getValue();
+							var education=Ext.getCmp("education").getValue();
+							var email=Ext.getCmp("email").getValue();
+							var action=null;
+							var name=Ext.getCmp("usersAction").title;
+							if(name=="添加用户"){
+								action=path+'/userController/addUser.do';
+							}else{
+								action=path+'/userController/updateUser.do';
+							}
+							Ext.Ajax.request({
+								url:action,
+								method:'post',
+								success:function(res){
+									Ext.Msg.alert("操作结果","用户操作成功");
+									Ext.getCmp("usersAction").close();	
+									//Ext.getCmp("userMangerGrid").getStore().reload();	
+								},
+								params:{
+									userName:userName,
+									passWord:passWord,
+									realName:realName,
+									sex:sex,	
+									authority:authority,
+									introduction:introduction,
+									address:address,
+									telephone:telephone,
+									hometown:hometown,
+									education:education,
+									email:email,
+									card:card,
+									birth:birth,
+									className:className,
+									ido:ido
+								}
+							})
+						}else{
+							Ext.Msg.alert("操作失败","输入项不合法");
+						}
+					}
+					
+				}
+			},{
+				text:'关闭',
+                handler:function(){
+                	Ext.getCmp("usersAction").close();
+                }
+			}]
+		});
+		this.callParent(arguments);
+	}
+});

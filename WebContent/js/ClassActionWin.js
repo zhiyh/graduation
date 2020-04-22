@@ -1,0 +1,80 @@
+Ext.ns("homework","homeworks.js");
+Ext.define("homework.js.classActionWin",{
+	extend:'Ext.Window',
+	title:null,
+	id:'classAction',
+	edtionClassName:null,
+	actionText:null,
+	initComponent:function(){
+		Ext.apply(this,{
+			title:this.title,
+			id:'classAction',
+			width:250,
+			height:100,
+			plain:true,
+			modal:true,
+			border:false,
+			constrain:true,
+			layout:'form',
+			x:500,  
+		    y:200,  
+			frame:true,
+			items:[{
+				xtype:'textfield',
+				fieldLabel:'班级名称',
+				height:25,
+				/*width:30,*/
+				id:'className',
+				readOnly:this.edtionClassName,
+				name:'classlName',
+				allowBlank:false,//不允许为空  
+                blankText:"班级名称不能为空"
+			},{
+				xtype:'textfield',
+				id:'classId',
+				name:'classId',
+				hidden:true,
+				hideLabel:true
+			}],
+			buttons:[{
+				text:this.actionText,
+				handler:function(){
+					console.log(Ext.getCmp("className").getValue());
+					if(Ext.getCmp("className").getValue()==""){
+						Ext.Msg.alert("操作失败","用户名不能为空！！！");
+					}else{
+						var className=Ext.getCmp("className").getValue();
+						var ido=Ext.getCmp("classId").getValue();
+						console.log(ido);
+						var action=null;
+						var name=Ext.getCmp("classAction").title;
+						if(name=="添加班级"){
+							action=path+'/classController/addClass.do';
+						}else{
+							action=path+'/classController/updateClass.do';
+						}
+						Ext.Ajax.request({
+							url:action,
+							method:'post',
+							success:function(res){
+								Ext.Msg.alert("操作结果","用户操作成功");
+								Ext.getCmp("classAction").close();	
+								Ext.getCmp("classMangerGrid").getStore().reload();
+							},
+							params:{
+								className:className,
+								ido:ido
+							}
+						})
+					}	
+				}
+			},{
+				text:'关闭',
+                handler:function(){
+                	Ext.getCmp("classAction").close();
+                }
+			}]
+		});
+		this.callParent(arguments);
+	}
+});

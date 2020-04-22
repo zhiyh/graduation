@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jnxy.mapper.ClassMapper">
+ 
+	<!-- 查询当前页班级信息 -->
+	<select id="getClassList"    resultType="com.jnxy.pojo.Class">
+		select classId,className from class 
+	</select>
+	<!-- 查询当前页班级信息 -->
+	<select id="getClassInfoList"  parameterType="int" resultType="com.jnxy.pojo.Class">
+		select classId,className,stuCount,teaCount from class limit #{0},#{1} 
+	</select>
+	<!-- 查询班级总数 -->
+	<select id="classTotalCount"   resultType="int">
+		select count(*) from class
+	</select>
+	<!-- 添加班级 -->
+	<insert id="addClass" parameterType="String">
+	    insert into class (className) values (#{className})
+   </insert>
+    <!-- 根据classId更新班级 -->
+  <update id="updateClass" parameterType="com.jnxy.pojo.Class">
+    update class set className=#{className} where classId = #{classId}
+  </update>
+  <!-- 批量删除 -->
+   <delete id="delClass" parameterType="int[]">  
+        <!-- delete from emp where empno in(7789,7790) -->  
+        <!-- forEach : 用来循环 collection : 用来指定循环的数据的类型 可以填的值有：array,list,map item   
+            : 循环中为每个循环的数据指定一个别名 index : 循环中循环的下标 open : 开始 close : 结束 separator : 数组中元素之间的分隔符 -->  
+        delete from class where classId in  
+        <foreach collection="array" item="arr" index="no" open="("  
+            separator="," close=")">  
+            #{arr}  
+        </foreach>  
+    </delete> 
+    <!-- 模糊查询-->
+    <select id="searchClassByLike"  parameterType="String"  resultType="com.jnxy.pojo.Class">
+		select classId,className,stuCount,teaCount from class 
+		where  CONCAT(classId,className,stuCount,teaCount) like CONCAT('%',#{content},'%')	 
+	</select>
+</mapper>

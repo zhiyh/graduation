@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jnxy.mapper.UserMapper">
+    <!-- 用户登录 -->
+	<select id="login" parameterType="String"  resultType="com.jnxy.pojo.User">
+		select * from user where userName like #{0} or userNumber like #{0} or telephone like #{0} or email like #{0} or card like #{0} and passWord=#{1}
+	</select>
+	<!-- 查询用户名是否存在 -->
+	<select id="selectUserName" parameterType="String"  resultType="com.jnxy.pojo.User">
+		select * from user where userName=#{userName}
+	</select>
+	<!-- 找回密码 -->
+	<select id="getPassword" parameterType="String"  resultType="String">
+		select passWord from user where realName=#{0} and card=#{1} and email=#{2} and telephone=#{3}
+	</select>
+	 <!-- 根据ID查询密码 -->
+	<select id="searchPasswordById" parameterType="int"  resultType="String">
+		select passWord from user where id=#{0}
+	</select>
+	<!-- 根据ID查询用户信息 -->
+	<select id="searchUserByid" parameterType="int"  resultType="com.jnxy.pojo.User">
+		select * from user where id=#{0} 
+	</select>
+	 <!-- 查询用户总数 -->
+	<select id="usersTotalCount"   resultType="int">
+		select count(*) from user
+	</select>
+	 <!-- 查询当前页用户信息 -->
+	<select id="getUserList"  parameterType="int"  resultType="com.jnxy.pojo.UserInfo">
+		select u.id,userName,passWord,userNumber,realName,telephone,address,email,card,sex,birth,c.className,education,politicsStatus,authority,hometown,introduction from user u,class c where c.classId=u.classId limit #{0},#{1} 
+	</select>
+	 <!-- 查询模糊用户信息 -->
+	<select id="searchUserByLike"  parameterType="String"  resultType="com.jnxy.pojo.UserInfo">
+		select u.id,userName,passWord,userNumber,realName,telephone,address,email,card,sex,birth,c.className,education,politicsStatus,authority,hometown,introduction from user u,class c 
+		where c.classId=u.classId 	
+		and CONCAT(userName,passWord,userNumber,realName,telephone,c.className,sex,authority) like CONCAT('%',#{content},'%')	 
+	</select>
+	<!-- 添加用户 -->
+	<insert id="addUser" parameterType="com.jnxy.pojo.User">
+	    insert into user(userName,passWord,realName,telephone,address,email,card,sex,birth,classId,education,authority,hometown,introduction,userNumber) 
+	    values(#{userName},#{passWord},#{realName},#{telephone},#{address},#{email},#{card},#{sex},#{birth},#{classId},#{education},#{authority},#{hometown},#{introduction},#{userNumber})
+   </insert>
+   <!-- 批量删除 -->
+   <delete id="delUser" parameterType="int[]">  
+        <!-- delete from emp where empno in(7789,7790) -->  
+        <!-- forEach : 用来循环 collection : 用来指定循环的数据的类型 可以填的值有：array,list,map item   
+            : 循环中为每个循环的数据指定一个别名 index : 循环中循环的下标 open : 开始 close : 结束 separator : 数组中元素之间的分隔符 -->  
+        delete from user where id in  
+        <foreach collection="array" item="arr" index="no" open="("  
+            separator="," close=")">  
+            #{arr}  
+        </foreach>  
+    </delete> 
+     <!-- 根据id更新用户 -->
+  <update id="updateUserById" parameterType="com.jnxy.pojo.User">
+    update user set passWord=#{passWord},realName=#{realName},telephone=#{telephone},address=#{address},email=#{email},card=#{card},sex=#{sex},birth=#{birth},
+    classId=#{classId},education=#{education},authority=#{authority},hometown=#{hometown},introduction=#{introduction} where id = #{id}
+  </update> 
+   <!-- 根据id更新密码 -->
+  <update id="updatePasswordById" >
+    update user set passWord=#{0} where id = #{1}
+  </update> 
+   <!-- 用户根据id更新本人信息 -->
+  <update id="updateUserInfoById" parameterType="com.jnxy.pojo.User">
+    update user set realName=#{realName},telephone=#{telephone},address=#{address},email=#{email},card=#{card},sex=#{sex},birth=#{birth},
+    education=#{education},hometown=#{hometown},introduction=#{introduction} where id = #{id}
+  </update> 
+   <!-- 根据班级ID查询学生总数 -->
+	<select id="searchstuCountByClassId"   resultType="int" parameterType="int">
+		select stuCount from class where classId=#{classId}
+	</select>
+	<!-- 根据班级ID查询老师总数 -->
+	<select id="searchteaCountByClassId"   resultType="int" parameterType="int">
+		select teaCount from class where classId=#{classId}
+	</select>
+</mapper>

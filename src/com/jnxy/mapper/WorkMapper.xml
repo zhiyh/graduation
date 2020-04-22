@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jnxy.mapper.WorkMapper">
+	<!-- 查询当前登录的老师的作业 -->
+	<select id="getHomeworkList"  parameterType="int" resultType="com.jnxy.pojo.Homework">
+		select className,stuCount,workId,teaId,c.classId,workTitle,img_path,stareTime,endTime,workState,stuNumber from class c,homework h where c.classId=h.classId and teaId=#{0} order by workId desc limit #{1},#{2} 
+	</select>
+	<!-- 根据workID查询已提交学生的作业 'stuId','className','workTitle','realName','stuAnswer','score','teaAssess'-->
+	<select id="correctStuWorkInit"  parameterType="int" resultType="com.jnxy.pojo.StuWork">
+		select stuId,className,workTitle,realName,stuAnswer,score,teaAssess from 
+		class c,homework h,stuwork s,user u where c.classId=h.classId and s.workId=h.workId and u.id=s.stuId and s.workId=#{0} limit #{1},#{2} 
+	</select>
+	<!-- 查询当前登录的学生的作业 -->
+	<select id="getStuHomeworkList"   resultType="com.jnxy.pojo.Homework">
+		select className,stuCount,workId,teaId,c.classId,workTitle,img_path,stareTime,endTime,stuNumber from class c,homework h where c.classId=h.classId and h.workState='已发布' and #{0} between stareTime and endTime and c.classId=#{1} order by workId desc limit #{2},#{3} 
+	</select>
+	<!-- 查询自己的作业 -->
+	<select id="selectStuWorkSelf"   resultType="com.jnxy.pojo.StuWork">
+		select * from stuwork where workId = #{0} and stuId=#{1}  
+	</select>
+	<!-- 查询成绩 -->
+	<select id="searchStuScore"   resultType="com.jnxy.pojo.StuWork">
+		select s.*,h.workTitle from stuwork s,homework h  where s.workId=h.workId and s.stuId=#{0} and s.state='已批' order by s.workId desc limit #{1},#{2}
+	</select>
+	<!-- 查询当前登录老师作业总数 -->
+	<select id="getWorkTotalCount"  parameterType="int" resultType="int">
+		select count(*) from homework where teaId=#{0}
+	</select>
+	<!-- 根据workid查询已经提交的作业总数 -->
+	<select id="getStuWorkfromStuwork"  parameterType="int" resultType="int">
+		select count(*) from stuwork where workId=#{0}
+	</select>
+	<!-- 根据stuId查询老师已批的作业总数 -->
+	<select id="searchStuScoreTotalcount"  parameterType="int" resultType="int">
+		select count(*) from stuwork where stuId=#{0} and state='已批'
+	</select>
+	<!--  查询是否提交过作业-->
+	<select id="getStuWorkCount"  parameterType="int" resultType="int">
+		select count(*) from stuwork where workId=#{0} and stuId=#{1}
+	</select>
+	<!-- 查询当前登录老师作业总数 -->
+	<select id="getStuWorkTotalCount"  parameterType="int" resultType="int">
+		select count(*) from homework where classId=#{0}
+	</select>
+	<!-- 添加作业 -->
+	<insert id="addWork" parameterType="com.jnxy.pojo.Homework" >
+	    insert into homework(teaId,classId,workTitle,stareTime,endTime,img_path) values (#{teaId},#{classId},#{workTitle},#{stareTime},#{endTime},#{img_path})
+   </insert>
+    <!-- 提交作业 -->
+	<insert id="addStuWork" parameterType="com.jnxy.pojo.StuWork" >
+	    insert into stuwork(workId,stuId,classId,teaId,stuAnswer) values (#{workId},#{stuId},#{classId},#{teaId},#{stuAnswer})
+    </insert>
+    <!-- 批量发布作业 -->
+   <update id="pulishWork" parameterType="int[]">  
+        <!-- delete from emp where empno in(7789,7790) -->  
+        <!-- forEach : 用来循环 collection : 用来指定循环的数据的类型 可以填的值有：array,list,map item   
+            : 循环中为每个循环的数据指定一个别名 index : 循环中循环的下标 open : 开始 close : 结束 separator : 数组中元素之间的分隔符 -->  
+        update  homework set workState='已发布' where workId in  
+        <foreach collection="array" item="arr" index="no" open="("  
+            separator="," close=")">  
+            #{arr}  
+        </foreach>  
+    </update>
+     <!-- 批量取消发布 -->
+   <update id="cancelWork" parameterType="int[]">  
+        <!-- delete from emp where empno in(7789,7790) -->  
+        <!-- forEach : 用来循环 collection : 用来指定循环的数据的类型 可以填的值有：array,list,map item   
+            : 循环中为每个循环的数据指定一个别名 index : 循环中循环的下标 open : 开始 close : 结束 separator : 数组中元素之间的分隔符 -->  
+        update  homework set workState='未发布' where workId in  
+        <foreach collection="array" item="arr" index="no" open="("  
+            separator="," close=")">  
+            #{arr}  
+        </foreach>  
+    </update>
+    <!-- 批量删除 -->
+    <delete id="delWork" parameterType="int[]">  
+        <!-- delete from emp where empno in(7789,7790) -->  
+        <!-- forEach : 用来循环 collection : 用来指定循环的数据的类型 可以填的值有：array,list,map item   
+            : 循环中为每个循环的数据指定一个别名 index : 循环中循环的下标 open : 开始 close : 结束 separator : 数组中元素之间的分隔符 -->  
+        delete from  homework  where workId in  
+        <foreach collection="array" item="arr" index="no" open="("  
+            separator="," close=")">  
+            #{arr}  
+        </foreach>  
+    </delete> 
+    <!-- 修改作业 -->
+    <update id="updateWork" parameterType="com.jnxy.pojo.Homework" >
+	    update homework set workTitle = #{workTitle},stareTime=#{stareTime},endTime=#{endTime},img_path=#{img_path} where workId=#{workId}
+   </update> 
+   <!-- 修改已提交作业 -->
+    <update id="updateStuWork" parameterType="com.jnxy.pojo.StuWork" >
+	    update stuwork set stuAnswer=#{stuAnswer} where workId=#{workId} and stuId=#{stuId}
+   </update> 
+    <!-- 批改作业 -->
+    <update id="correctStuWork" parameterType="com.jnxy.pojo.StuWork" >
+	    update stuwork set stuAnswer=#{stuAnswer},teaAssess=#{teaAssess},score=#{score},state=#{state} where workId=#{workId} and stuId=#{stuId}
+   </update> 
+    <!-- 模糊查询-->
+    <select id="searchWorkByLike"  parameterType="String"  resultType="com.jnxy.pojo.Homework">
+		select className,stuCount,workId,teaId,c.classId,workTitle,img_path,stareTime,endTime,workState,stuNumber from class c,homework h where c.classId=h.classId
+		and  CONCAT(className,stuCount,stuNumber,workTitle,stareTime,endTime,workState) like CONCAT('%',#{content},'%')	 
+	</select> 
+</mapper>
