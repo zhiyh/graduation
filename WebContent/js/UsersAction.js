@@ -239,7 +239,7 @@ Ext.define("homework.js.UsersActionWin",{
 						editable:false,
 						id:'className',
 						name:'className',
-						allowBlank:false,//不允许为空  
+						allowBlank:true,//不允许为空  
 		                blankText:"班级不能为空"
 					}]
 				},{
